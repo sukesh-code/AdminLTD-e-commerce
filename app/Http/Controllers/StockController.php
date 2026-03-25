@@ -96,7 +96,7 @@ class StockController extends Controller
             'tax' => $request->tax,
             'discount' => 30,
             'user_id' => Auth::id()
-        ]);
+        ]); 
 
         return redirect()->route('view.seller.product')
             ->with('success', 'Product Created Successfully');
@@ -119,7 +119,7 @@ class StockController extends Controller
 
             return redirect()->back()->with('error', $e->getMessage());
         }
-        
+
     }
 
     public function editPage($id)
