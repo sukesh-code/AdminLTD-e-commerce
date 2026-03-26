@@ -90,14 +90,36 @@
                                 </div>
                                 --}}
                                 </div>
-
                                 @php
-                                use App\Models\Attribute;
-                                    $colors = Attribute::where('type', 1)->with('AttributeValue')->first();
+                                    $productColors = collect();
+                                    $productSizes = collect();
 
+                                    foreach ($product->productVariant as $variant) {
+                                        foreach ($variant->attributes as $attr) {
+                                            // Color (type = 1)
+                                            if (
+                                                $attr->attributeValue &&
+                                                $attr->attributeValue->attribute &&
+                                                $attr->attributeValue->attribute->type == 1
+                                            ) {
+                                                $productColors->push($attr->attributeValue);
+                                            }
 
+                                            // Size (type = 2)
+                                            if (
+                                                $attr->attributeValue &&
+                                                $attr->attributeValue->attribute &&
+                                                $attr->attributeValue->attribute->type == 2
+                                            ) {
+                                                $productSizes->push($attr->attributeValue);
+                                            }
+                                        }
+                                    }
+
+                                    $productColors = $productColors->unique('id');
+                                    $productSizes = $productSizes->unique('id');
                                 @endphp
-{{--
+                                {{--
                             <pre>{{ $colors->toJson(JSON_PRETTY_PRINT) }}</pre>
 
                             @php
@@ -111,53 +133,35 @@
 
                                     <hr>
 
+
+
+
                                     <h4>Available Colors</h4>
-                                            @foreach ($colors->AttributeValue as $c)
-                                        <label class="btn btn-default text-center">
-                                            <input type="radio" name="color_option" id="color_option_a2"
-                                                autocomplete="off">
-                                         {{ $c->value }}
-                                            <br>
-                                            <i class="fas fa-circle fa-2x text-{{ Str::lower($c->value) }}"></i>
-                                        </label>
-                                    @endforeach
-                                    {{-- <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                                        <label class="btn btn-default text-center active">
-                                            <input type="radio" name="color_option" id="color_option_a1"
-                                                autocomplete="off" checked>
-                                            Green
-                                            <br>
-                                            <i class="fas fa-circle fa-2x text-green"></i>
-                                        </label>
-                                        <label class="btn btn-default text-center">
-                                            <input type="radio" name="color_option" id="color_option_a2"
-                                                autocomplete="off">
-                                            Blue
-                                            <br>
-                                            <i class="fas fa-circle fa-2x text-blue"></i>
-                                        </label>
-                                        <label class="btn btn-default text-center">
-                                            <input type="radio" name="color_option" id="color_option_a3"
-                                                autocomplete="off">
-                                            Purple
-                                            <br>
-                                            <i class="fas fa-circle fa-2x text-purple"></i>
-                                        </label>
-                                        <label class="btn btn-default text-center">
-                                            <input type="radio" name="color_option" id="color_option_a4"
-                                                autocomplete="off">
-                                            Red
-                                            <br>
-                                            <i class="fas fa-circle fa-2x text-red"></i>
-                                        </label>
-                                        <label class="btn btn-default text-center">
-                                            <input type="radio" name="color_option" id="color_option_a5"
-                                                autocomplete="off">
-                                            Orange
-                                            <br>
-                                            <i class="fas fa-circle fa-2x text-orange"></i>
-                                        </label>
-                                    </div> --}}
+                                    <div class="btn-group btn-group-toggle d-flex flex-wrap" data-toggle="buttons">
+                                        @foreach ($productColors as $c)
+                                            <label class="btn btn-default text-center m-1 option-btn" data-type="color"
+                                                data-value="{{ $c->value }}">
+                                                <input type="radio" name="color_option" autocomplete="off">
+                                                {{ $c->value }}
+                                                <br>
+                                                <i class="fas fa-circle fa-2x"
+                                                    style="color: {{ strtolower($c->value) }};"></i>
+                                            </label>
+                                        @endforeach
+                                    </div>
+
+                                    <h4 class="mt-3">Available Sizes</h4>
+                                    <div class="btn-group btn-group-toggle d-flex flex-wrap" data-toggle="buttons">
+                                        @foreach ($productSizes as $s)
+                                            <label class="btn btn-outline-secondary option-btn m-1" data-type="size"
+                                                data-value="{{ $s->value }}" style="min-width:25px;">
+                                                <input type="radio" name="size_option" autocomplete="off">
+                                                {{ $s->value }}
+                                            </label>
+                                        @endforeach
+                                    </div>
+
+
 
                                     @php
                                         $categoryId = $product->category_id;
@@ -201,25 +205,22 @@
 
 
                                     <div class="bg-gray py-2 px-3 mt-4">
-                                        <h2 id="price" class="mb-0">${{ $product->product_price }}</h2>
+                                        <h2 id="price" class="mb-0">$0</h2>
                                         <h4 class="mt-0">
-                                            <small>Ex Tax: ${{ $product->tax }}</small> <br>
-                                            <small>Discount: ${{ $product->discount }}</small>
+                                            <small id="exTax">Ex Tax: $0</small> <br>
+                                            <small id="discount">Discount: $0</small>
                                         </h4>
                                     </div>
 
                                     <div class="mt-4">
-                                        <a href="{{ route('cart.access', $product->id) }} "
+                                        <a href="#" id="addToCart"
                                             class="btn btn-primary btn-lg btn-flat">
                                             <i class="fas fa-cart-plus fa-lg mr-2"></i>
                                             Add to Cart
                                         </a>
-
-                                        <div class="btn btn-default btn-lg btn-flat">
-                                            <i class="fas fa-heart fa-lg mr-2"></i>
-                                            Add to Wishlist
-                                        </div>
+{{-- <a href="#" id="addToCart" class="btn btn-primary btn-lg btn-flat"></a> --}}
                                     </div>
+
 
                                     <div class="mt-4 product-share">
                                         <a href="#" class="text-gray"><i
@@ -301,13 +302,32 @@
     </script>
 
 
-
     <script>
         let variants = @json($product->productVariant);
         let selected = {};
 
-        $('.option-btn').click(function() {
+        $(document).ready(function() {
 
+            // First color select
+            let firstColor = $('.option-btn[data-type="color"]').first();
+            if (firstColor.length) {
+                firstColor.addClass('active');
+                selected['color'] = firstColor.data('value');
+            }
+
+            // First size select
+            let firstSize = $('.option-btn[data-type="size"]').first();
+            if (firstSize.length) {
+                firstSize.addClass('active');
+                selected['size'] = firstSize.data('value');
+            }
+
+            // Load default price
+            matchVariant();
+        });
+
+        // Click handler for color & size
+        $('.option-btn').click(function() {
             let type = $(this).data('type');
             let value = $(this).data('value');
 
@@ -319,28 +339,64 @@
             matchVariant();
         });
 
+
+
         function matchVariant() {
+
+            //  Check: dono select hue kya?
+            if (!selected['color'] || !selected['size']) {
+                return; // kuch mat kar
+            }
 
             for (let variant of variants) {
 
-                let match = true;
+                let colorMatch = false;
+                let sizeMatch = false;
 
                 for (let attr of variant.attributes) {
 
-                    let name = attr.attribute_value.attribute.name;
+                    let attrType = attr.attribute_value.attribute.type;
                     let value = attr.attribute_value.value;
 
-                    if (selected[name] && selected[name] != value) {
-                        match = false;
+                    if (attrType == 1 && selected['color'] == value) {
+                        colorMatch = true;
+                    }
+
+                    if (attrType == 2 && selected['size'] == value) {
+                        sizeMatch = true;
                     }
                 }
 
-                if (match) {
-                    $('#price').text('$' + variant.price);
+                //FULL MATCH (color + size both)
+                if (colorMatch && sizeMatch) {
+
+                    // $('#price').text('$' + variant.price);
+
+                    let basePrice = parseFloat(variant.price) || 0;
+                    let tax = parseFloat(variant.tax) || 0;
+                    let discount = parseFloat(variant.discount) || 0;
+
+                    // Final calculation
+                    let finalPrice = basePrice + tax - discount;
+
+                    // UI update
+                    $('#price').text('$' + finalPrice.toFixed(2));
+                    $('#exTax').text('Ex Tax: $' + basePrice.toFixed(2));
+                    $('#discount').text('Discount: $' + discount.toFixed(2));
+
+                    // image bhi change karna hai to
+                    if (variant.image) {
+                        $('.product-image').attr('src', '/' + variant.image);
+                    }
+
                     $('#addToCart').attr('href', '/cart-access/' + variant.id);
+
                     return;
                 }
             }
+
+            //  agar koi exact match nahi mila
+            $('#price').text('Not Available');
         }
     </script>
 </body>

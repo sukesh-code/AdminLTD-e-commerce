@@ -78,30 +78,34 @@ $cart = Cart::with('variant.product', 'variant.attributes.attributeValue')->wher
 
                                     <div class="col-md-6 d-flex align-items-center">
 
-                                        <img src="{{ $item->variant->product->product_image }}" width="70"
-                                            class="me-3 rounded">
+                                        {{-- <img src="{{ $item->variant->product->product_image }}" width="70"
+                                            class="me-3 rounded"> --}}
 
-                                        {{--
-                                        <h6 class="mb-1">
-                                            {{ $item->variant->product->product_name }}
-                                        </h6> --}}
-
-
-                                        <small class="text-muted">
-                                            @foreach ($item->variant->attributes as $attr)
-                                                {{ $attr->attributeValue->value }},
-                                            @endforeach
-                                        </small>
-
-
+                                        <img src="{{ asset($item->variant->image ?? $item->variant->product->product_image) }}"
+                                            width="70" class="me-5 rounded">
 
                                         <div>
                                             <h6 class="mb-1">
                                                 {{ $item->variant->product->product_name }}
                                             </h6>
 
-                                            <a href="{{ route('product-remove', $item->variant->id) }}"
-                                                class="text-danger small">Remove</a>
+
+                                            <small class="text-muted">
+                                                @foreach ($item->variant->attributes as $attr)
+                                                    <strong class="text-warning">
+                                                        {{ $attr->attributeValue->attribute->name }}:
+                                                        {{ $attr->attributeValue->value }}
+                                                    </strong>
+                                                    @if (!$loop->last)
+                                                        ,
+                                                    @endif
+                                                @endforeach
+                                            </small>
+
+                                            <h5>
+                                                <a href="{{ route('product-remove', $item->variant->id) }}"
+                                                    class="text-danger small">Remove</a>
+                                            </h5>
                                         </div>
 
                                     </div>

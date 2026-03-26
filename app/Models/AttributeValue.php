@@ -14,4 +14,10 @@ class AttributeValue extends Model
     {
         return $this->belongsTo(Attribute::class, 'attribute_id');
     }
+
+
+    public function variantAttributes()
+    {
+        return $this->hasMany(VariantAttribute::class, 'attribute_value_id');
+    }
 }

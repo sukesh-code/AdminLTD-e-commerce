@@ -110,7 +110,11 @@
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Attributes</label>
                                 <select name="attributes[]" id="attributes" class="form-control select2" multiple>
-                                    @foreach ($attributes as $attr)
+                                    {{-- @foreach ($attributes as $attr)
+                                        <option value="{{ $attr->id }}">{{ $attr->name }}</option>
+                                    @endforeach --}}
+
+                                    @foreach ($attributes->where('type', '!=', 1) as $attr)
                                         <option value="{{ $attr->id }}">{{ $attr->name }}</option>
                                     @endforeach
                                 </select>

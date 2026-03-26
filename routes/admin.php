@@ -143,7 +143,7 @@ Route::get('category/{id}', [CategoryController::class, 'showCategoryProducts'])
 
 Route::get('seller-product', [SellerController::class, 'purchasedUsers'])->name('view.seller.product');
 
-Route::get('check-role/{id}', [UserController::class, 'checkwhoAccessCart'])->name('cart.access');
+Route::get('/cart-access/{variant_id}', [UserController::class, 'checkwhoAccessCart'])->name('cart.access');
 
 Route::view('user-profile-image', 'e-commerce/user-profile')->name('view.user.profile');
 

@@ -289,26 +289,32 @@ class UserController extends Controller
 
             $user_id = $user->id;
 
-            // ✅ Variant find kar
+            //  Variant find kar
             $variant = ProductVariant::find($variant_id);
 
             if (!$variant) {
                 return back()->with('error', 'Variant not found');
             }
 
-            // ✅ Check cart
+            //  Check cart
             $cart = Cart::where('user_id', $user_id)
                 ->where('variant_id', $variant_id)
                 ->first();
 
-            // ✅ Update or Create
+            $basePrice = $variant->price ?? 0;
+            $tax = $variant->tax ?? 0;
+            $discount = $variant->discount ?? 0;
+
+            $finalPrice = $basePrice + $tax - $discount;
+
+            //  Update or Create
             Cart::updateOrCreate(
                 [
                     'user_id' => $user_id,
                     'variant_id' => $variant_id,
                 ],
                 [
-                    'price' => $variant->price,
+                    'price' => $finalPrice,
                     'quantity' => $cart ? $cart->quantity + 1 : 1,
                 ]
             );

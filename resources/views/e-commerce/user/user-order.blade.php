@@ -84,16 +84,34 @@
 
 
                                     <td>
-                                        <span class="badge bg-secondary">
+                                        <span class="badge bg-danger">
                                             {{ $order->orderDetails_rel->sum('order_quantity') }}
                                         </span>
                                     </td>
 
-
                                     <td class="text-start">
-                                        <strong>
-                                            {{ $order->orderDetails_rel->pluck('product.product_name')->implode(', ') }}
-                                        </strong>
+                                        @foreach ($order->orderDetails_rel as $detail)
+                                            <div class="mb-2 p-2 border rounded">
+
+
+                                                <strong class="d-block">
+                                                    {{ optional($detail->variant->product)->product_name }}
+                                                </strong>
+
+
+                                                <small class="text-muted">
+                                                    @foreach ($detail->variant->attributes as $attr)
+                                                        <span class="badge bg-light text-dark border">
+                                                            {{ $attr->attributeValue->attribute->name }}:
+                                                            {{ $attr->attributeValue->value }}
+                                                        </span>
+                                                    @endforeach
+                                                </small>
+
+
+
+                                            </div>
+                                        @endforeach
                                     </td>
 
                                     <td>

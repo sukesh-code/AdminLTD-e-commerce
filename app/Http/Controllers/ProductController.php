@@ -108,6 +108,65 @@ class ProductController extends Controller
                     $variant->image = $variantImagePath;
                     $variant->save();
 
+
+
+                    $variant->save();
+
+                    // ✅ YAHAN LAGANA HAI (AFTER VARIANT SAVE)
+                    if (isset($variantData['color_id'])) {
+
+                        $colorAttribute = Attribute::where('type', 1)->first();
+
+                        if ($colorAttribute) {
+
+                            VariantAttribute::updateOrInsert(
+                                [
+                                    'variant_id' => $variant->id,
+                                    'attribute_id' => $colorAttribute->id
+                                ],
+                                [
+                                    'attribute_value_id' => $variantData['color_id']
+                                ]
+                            );
+                        }
+                    }
+
+                    // ✅ Inventory
+                    ProductInventory::create([
+                        'variant_id' => $variant->id,
+                        'quantity' => $variantData['qty'] ?? 0
+                    ]);
+
+                    // ✅ PHIR OTHER ATTRIBUTES
+                    if ($request->has('attribute_values') && isset($variantData['variant'])) {
+
+                        $variantName = $variantData['variant'];
+                        $parts = explode(' - ', $variantName);
+
+                        foreach ($request->attribute_values as $attrId => $values) {
+
+                            foreach ($values as $valId) {
+
+                                $attrValue = AttributeValue::find($valId);
+
+                                if ($attrValue && in_array($attrValue->value, $parts)) {
+
+                                    $exists = VariantAttribute::where('variant_id', $variant->id)
+                                        ->where('attribute_id', $attrId)
+                                        ->exists();
+
+                                    if (!$exists) {
+                                        VariantAttribute::create([
+                                            'variant_id' => $variant->id,
+                                            'attribute_id' => $attrId,
+                                            'attribute_value_id' => $valId,
+                                        ]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     // Inventory
                     ProductInventory::create([
                         'variant_id' => $variant->id,
@@ -115,6 +174,31 @@ class ProductController extends Controller
                     ]);
 
                     // IMPORTANT FIX (correct attribute mapping)
+                    // if ($request->has('attribute_values') && isset($variantData['variant'])) {
+
+                    //     $variantName = $variantData['variant']; // e.g. Blue - 4 GB
+                    //     $parts = explode(' - ', $variantName);
+
+                    //     foreach ($request->attribute_values as $attrId => $values) {
+
+                    //         foreach ($values as $valId) {
+
+                    //             $attrValue = AttributeValue::find($valId);
+
+                    //             if ($attrValue && in_array($attrValue->value, $parts)) {
+
+                    //                 VariantAttribute::create([
+                    //                     'variant_id' => $variant->id,
+                    //                     'attribute_id' => $attrId,
+                    //                     'attribute_value_id' => $valId,
+                    //                 ]);
+                    //             }
+                    //         }
+                    //     }
+                    // }
+
+
+                    // ✅ SAFE ATTRIBUTE MAPPING (NO DUPLICATE + NO COLOR CONFLICT)
                     if ($request->has('attribute_values') && isset($variantData['variant'])) {
 
                         $variantName = $variantData['variant']; // e.g. Blue - 4 GB
@@ -128,11 +212,18 @@ class ProductController extends Controller
 
                                 if ($attrValue && in_array($attrValue->value, $parts)) {
 
-                                    VariantAttribute::create([
-                                        'variant_id' => $variant->id,
-                                        'attribute_id' => $attrId,
-                                        'attribute_value_id' => $valId,
-                                    ]);
+                                    // ✅ CHECK duplicate before insert
+                                    $exists = VariantAttribute::where('variant_id', $variant->id)
+                                        ->where('attribute_id', $attrId)
+                                        ->exists();
+
+                                    if (!$exists) {
+                                        VariantAttribute::create([
+                                            'variant_id' => $variant->id,
+                                            'attribute_id' => $attrId,
+                                            'attribute_value_id' => $valId,
+                                        ]);
+                                    }
                                 }
                             }
                         }

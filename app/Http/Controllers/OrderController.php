@@ -76,7 +76,7 @@ class OrderController extends Controller
 
         $order = Order::create([
             'user_id' => $user->id,
-            'order_address' => 'Demo Address',
+            'order_address' => 'Flat No. 302, Shree Residency Near Green Park Society Satellite Road Ahmedabad - 380015 India',
             'final_discount' => 20,
             'final_amount' => $total_price,
             'final_tax' => 50,
@@ -86,7 +86,7 @@ class OrderController extends Controller
         foreach ($cart as $items) {
             OrderDetail::create([
                 'order_id' => $order->id,
-                'variant_id' => $items->variant_id, // ✅ FIXED
+                'variant_id' => $items->variant_id,
                 'order_quantity' => $items->quantity,
                 'price_per_unit' => $items->price,
                 'discount' => 5,
