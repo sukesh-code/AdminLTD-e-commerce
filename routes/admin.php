@@ -7,8 +7,10 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EditValueController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\S3FileUplodController;
 use App\Http\Controllers\SellerController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserMangeController;
 use App\Http\Middleware\checkLogin;
@@ -116,15 +118,7 @@ Route::middleware([checkLogin::class])->group(function () {
 
 
 
-
-
-
-
 //E-commerce
-
-
-
-
 Route::view('/', 'e-commerce.home')->name('e-commerce-page');
 
 
@@ -190,3 +184,40 @@ Route::get('edit-page-seller-produt/{id}', [StockController::class, 'editPage'])
 
 //update Product
 Route::patch('update-seller-product/{id}', [StockController::class, 'updateProduct'])->name('update.seller.product');
+
+
+
+Route::get('invoice-page/{id}', [SellerController::class, 'invoicePage'])->name('invoice.page');
+
+Route::get('subscription',function(){
+    return view('subscription');
+})->name('subscription.page');
+
+
+Route::post('/subscribe', [SubscriptionController::class, 'subscribe'])
+    ->name('subscribe');
+
+
+Route::get('/subscription/success', function () {
+    return "Subscription successful!";
+})->name('subscription.success');
+
+Route::get('/subscription/cancel', function () {
+    return "Subscription cancelled!";
+})->name('subscription.cancel');
+
+
+Route::post('/stripe/webhook', [SubscriptionController::class, 'handle']);
+
+//subscription
+Route::view('subscription', 'subscriptions')->name('subscription.page');
+
+//S3 file upload
+Route::view('s3-file-upload', 'S3FileUpload')->name('s3.file.upload');
+Route::post('upload-file', [S3FileUplodController::class , 'upload'])->name('file.upload');
+
+
+//stripe checkout payment
+Route::get('/stripe/success', [OrderController::class, 'stripeSuccess'])->name('stripe.success');
+Route::get('/stripe/cancel', [OrderController::class, 'stripeCancel'])->name('stripe.cancel');
+Route::post('/stripe/webhook', [OrderController::class, 'handleWebhook']);

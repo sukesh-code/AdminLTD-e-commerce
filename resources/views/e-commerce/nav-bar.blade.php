@@ -95,106 +95,112 @@
 </nav>
 
 @auth
-<div id="sellerSidebar" class="position-fixed bg-light text-dark p-4 shadow"
-    style="top: 56px; right: -270px; width: 270px; height: 100vh; transition: right 0.3s; z-index: 1050; border-left: 1px solid #ddd; border-radius: 0 0 0 8px;">
-
-    @can('isSeller')
-        <h5 class="mb-4">Seller Menu</h5>
-    @endcan
-
-    @can('isUser')
-        <h5 class="mb-4">User Menu</h5>
-    @endcan
-
-    <ul class="nav flex-column">
-        <li class="nav-item mb-2">
-            <a href="{{ route('view.cart.page') }}" class="nav-link text-dark d-flex align-items-center rounded hover-bg">
-                <i class="fas fa-shopping-cart mr-2"></i> My Cart
-            </a>
-        </li>
-
-        @can('isUser')
-            <li class="nav-item mb-2">
-                <a href="{{ route('user.order.page') }}" class="nav-link text-dark d-flex align-items-center rounded hover-bg">
-                    <i class="fas fa-list-alt mr-2"></i> My Orders
-                </a>
-            </li>
-        @endcan
+    <div id="sellerSidebar" class="position-fixed bg-light text-dark p-4 shadow"
+        style="top: 56px; right: -270px; width: 270px; height: 100vh; transition: right 0.3s; z-index: 1050; border-left: 1px solid #ddd; border-radius: 0 0 0 8px;">
 
         @can('isSeller')
-            <li class="nav-item mb-2">
-                <a href="{{ route('order.page', Auth::id()) }}" class="nav-link text-dark d-flex align-items-center rounded hover-bg">
-                    <i class="fas fa-list-alt mr-2"></i> My Orders
-                </a>
-            </li>
-
-            <li class="nav-item mb-2">
-                <a href="{{ route('view.seller.product') }}" class="nav-link text-dark d-flex align-items-center rounded hover-bg">
-                    <i class="fas fa-box-open mr-2"></i> My Products
-                </a>
-            </li>
+            <h5 class="mb-4">Seller Menu</h5>
         @endcan
 
-        <li class="nav-item mb-2">
-            <a href="{{ route('change.password') }}" class="nav-link text-dark d-flex align-items-center rounded hover-bg">
-                <i class="fas fa-key mr-2"></i> Change Password
-            </a>
-        </li>
+        @can('isUser')
+            <h5 class="mb-4">User Menu</h5>
+        @endcan
 
-        <!-- UPDATED LOGOUT -->
-        <li class="nav-item">
-            <a href="{{ route('logout.now') }}" class="nav-link text-dark d-flex align-items-center rounded hover-bg logout-btn">
-                <i class="fas fa-sign-out-alt mr-2"></i> Logout
-            </a>
-        </li>
-    </ul>
-</div>
+        <ul class="nav flex-column">
+            <li class="nav-item mb-2">
+                <a href="{{ route('view.cart.page') }}"
+                    class="nav-link text-dark d-flex align-items-center rounded hover-bg">
+                    <i class="fas fa-shopping-cart mr-2"></i> My Cart
+                </a>
+            </li>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            @can('isUser')
+                <li class="nav-item mb-2">
+                    <a href="{{ route('user.order.page') }}"
+                        class="nav-link text-dark d-flex align-items-center rounded hover-bg">
+                        <i class="fas fa-list-alt mr-2"></i> My Orders
+                    </a>
+                </li>
+            @endcan
 
-<script>
-    let cartCount = localStorage.getItem("cartCount") || 0;
-    $('#cart-count').text(cartCount);
+            @can('isSeller')
+                <li class="nav-item mb-2">
+                    <a href="{{ route('order.page', Auth::id()) }}"
+                        class="nav-link text-dark d-flex align-items-center rounded hover-bg">
+                        <i class="fas fa-list-alt mr-2"></i> My Orders
+                    </a>
+                </li>
 
-    $(document).on('click', '.addCart', function() {
-        cartCount++;
-        localStorage.setItem("cartCount", cartCount);
+                <li class="nav-item mb-2">
+                    <a href="{{ route('view.seller.product') }}"
+                        class="nav-link text-dark d-flex align-items-center rounded hover-bg">
+                        <i class="fas fa-box-open mr-2"></i> My Products
+                    </a>
+                </li>
+            @endcan
+
+            <li class="nav-item mb-2">
+                <a href="{{ route('change.password') }}"
+                    class="nav-link text-dark d-flex align-items-center rounded hover-bg">
+                    <i class="fas fa-key mr-2"></i> Change Password
+                </a>
+            </li>
+
+            <!-- UPDATED LOGOUT -->
+            <li class="nav-item">
+                <a href="{{ route('logout.now') }}"
+                    class="nav-link text-dark d-flex align-items-center rounded hover-bg logout-btn">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        let cartCount = localStorage.getItem("cartCount") || 0;
         $('#cart-count').text(cartCount);
-    });
 
-    // LOGOUT CONFIRMATION
-    $(document).on('click', '.logout-btn', function(e) {
-        e.preventDefault();
-        let link = $(this).attr('href');
-
-        if (confirm("Are you sure you want to logout?")) {
-            window.location.href = link;
-        }
-    });
-</script>
-
-<style>
-    #sellerSidebar .hover-bg:hover {
-        background-color: #f0f0f0;
-        transition: background-color 0.2s;
-    }
-
-    #sellerSidebar ul {
-        max-height: calc(100vh - 80px);
-        overflow-y: auto;
-        padding-right: 4px;
-    }
-</style>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggle = document.getElementById('sellerSidebarToggle');
-        const sidebar = document.getElementById('sellerSidebar');
-
-        toggle.addEventListener('click', function(e) {
-            e.preventDefault();
-            sidebar.style.right = (sidebar.style.right === '0px') ? '-270px' : '0px';
+        $(document).on('click', '.addCart', function() {
+            cartCount++;
+            localStorage.setItem("cartCount", cartCount);
+            $('#cart-count').text(cartCount);
         });
-    });
-</script>
+
+        // LOGOUT CONFIRMATION
+        $(document).on('click', '.logout-btn', function(e) {
+            e.preventDefault();
+            let link = $(this).attr('href');
+
+            if (confirm("Are you sure you want to logout?")) {
+                window.location.href = link;
+            }
+        });
+    </script>
+
+    <style>
+        #sellerSidebar .hover-bg:hover {
+            background-color: #f0f0f0;
+            transition: background-color 0.2s;
+        }
+
+        #sellerSidebar ul {
+            max-height: calc(100vh - 80px);
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggle = document.getElementById('sellerSidebarToggle');
+            const sidebar = document.getElementById('sellerSidebar');
+
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                sidebar.style.right = (sidebar.style.right === '0px') ? '-270px' : '0px';
+            });
+        });
+    </script>
 @endauth

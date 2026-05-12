@@ -24,7 +24,7 @@ class ProductController extends Controller
 
         $product = Product::with(
             'productVariant.attributes.attributeValue.attribute',
-               'productVariant.inventory'
+            'productVariant.inventory'
         )->findOrFail($id);
 
 
@@ -45,8 +45,14 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Category::all();
-        $attributes = Attribute::with('attributeValue')->get();
-        return view('admin.product.add-product', compact('categories', 'attributes'));
+
+        $attributes = Attribute::with('AttributeValue')->get();
+
+        $colors = Attribute::with('AttributeValue')
+            ->where('type', 1)
+            ->first();
+
+        return view('admin.product.add-product', compact('categories', 'attributes', 'colors'));
     }
 
     public function store(Request $request)
@@ -168,7 +174,7 @@ class ProductController extends Controller
                         'quantity' => $variantData['qty'] ?? 0
                     ]);
 
- 
+
 
                     // SAFE ATTRIBUTE MAPPING (NO DUPLICATE + NO COLOR CONFLICT)
                     if ($request->has('attribute_values') && isset($variantData['variant'])) {
@@ -223,14 +229,10 @@ class ProductController extends Controller
             if (Gate::allows('isAdmin')) {
                 return redirect()->route('dashboard.page')
                     ->with('success', ' Product Added Successfully!');
-            }else{
-                   return redirect()->route('view.seller.product')
-                ->with('success', ' Product Added Successfully!');
+            } else {
+                return redirect()->route('view.seller.product')
+                    ->with('success', ' Product Added Successfully!');
             }
-
-
-
-
         } catch (\Exception $e) {
 
             DB::rollBack();

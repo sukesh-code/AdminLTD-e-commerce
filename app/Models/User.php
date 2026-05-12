@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'stripe_customer_id'
     ];
 
     public $table = 'users';
@@ -73,5 +74,10 @@ class User extends Authenticatable
             'id', // users.id
             'id' // orders.id
         );
+    }
+
+    public function subscription()
+    {
+        $this->hasOne(Subscription::class, 'user_id');
     }
 }

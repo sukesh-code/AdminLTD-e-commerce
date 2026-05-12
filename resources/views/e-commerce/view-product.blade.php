@@ -347,8 +347,6 @@
 
         function matchVariant() {
 
-
-
             //  Check: dono select hue kya?
             if (!selected['color'] || !selected['size']) {
                 return; // kuch mat kar

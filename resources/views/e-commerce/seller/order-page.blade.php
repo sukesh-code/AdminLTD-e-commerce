@@ -162,7 +162,7 @@
                                             <option value="pending"  class="text-success" {{ $order->status == 'delivered' ? 'selected' : '' }}>
                                                 delivered</option>
 
-            
+
                                             <option value="cancelled" class="text-danger"
                                                 {{ $order->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                                         </select>
@@ -206,6 +206,7 @@
     </script>
 
     <script>
+
         $(document).ready(function() {
 
             $('.status-change').change(function() {

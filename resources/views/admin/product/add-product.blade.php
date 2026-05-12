@@ -278,7 +278,6 @@
             </thead>
             <tbody>
         `;
-
                 let index = 0;
 
                 colors.forEach(color => {
@@ -347,30 +346,6 @@
                         _token: "{{ csrf_token() }}",
                         attribute_ids: selectedAttributes
                     },
-                    // success: function(response) {
-
-                    //     let html = '';
-
-                    //     response.forEach(function(attr) {
-
-                    //         html += `
-                    //         <div class="mb-3">
-                    //             <label><b>${attr.name}</b></label>
-                    //             <select name="attribute_values[${attr.id}][]" class="form-control" multiple>
-                    //     `;
-
-                    //         attr.values.forEach(function(val) {
-                    //             html +=
-                    //                 `<option value="${val.id}">${val.value}</option>`;
-                    //         });
-
-                    //         html += `</select></div>`;
-                    //     });
-
-                    //     $('#attribute-values-area').html(html);
-                    // }
-
-
                     success: function(response) {
 
                         let html = '';
@@ -378,9 +353,9 @@
                         response.forEach(function(attr) {
 
                             html += `
-            <div class="mb-3">
-                <label class="form-label fw-semibold">${attr.name}</label>
-                <select name="attribute_values[${attr.id}][]"
+                        <div class="mb-3">
+                        <label class="form-label fw-semibold">${attr.name}</label>
+                        <select name="attribute_values[${attr.id}][]"
                         class="form-control dynamic-select2" multiple>
         `;
 
@@ -394,7 +369,7 @@
 
                         $('#attribute-values-area').html(html);
 
-                        // 🔥 IMPORTANT
+                        // IMPORTANT
                         $('.dynamic-select2').select2({
                             placeholder: "Select " + "value",
                             allowClear: true,

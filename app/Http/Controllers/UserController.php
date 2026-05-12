@@ -15,31 +15,49 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Stripe\Customer;
+use Stripe\Stripe;
 
 class UserController extends Controller
 {
-    public function register(Request $request)
-    {
+public function register(Request $request)
+{
+    $data = $request->validate([
+        'name' => 'required|min:3',
+        'email' => 'required|email|unique:users,email',
+        'password' => 'required|min:6'
+    ]);
 
-        $user = $request->validate([
-            'name' => 'required|min:3',
-            'email' => 'required|email',
-            'password' => 'required'
+    //  Password hash
+    $data['password'] = Hash::make($data['password']);
+
+    //  Step 1: Create user first
+    $user = User::create($data);
+
+    try {
+        Stripe::setApiKey(config('stripe.secret_key'));
+
+        //  Step 2: Create Stripe customer
+        $customer = Customer::create([
+            'email' => $user->email,
+            'name' => $user->name,
         ]);
 
-        if (!$user) {
-            return "Provided Input is not Proper Formate";
-            abort(401);
-        }
+        //  Step 3: Save Stripe ID
+        $user->update([
+            'stripe_customer_id' => $customer->id
+        ]);
 
-
-        sendEmailJob::dispatch($user);
-        User::create($user);
-
-
-        return redirect()->route('LoginPage');
+    } catch (\Exception $e) {
+        Log::error('Stripe Error: ' . $e->getMessage());
     }
 
+    //  Email job
+    SendEmailJob::dispatch($data);
+
+    return redirect()->route('LoginPage');
+}
 
     public function login(Request $request)
     {
@@ -86,8 +104,6 @@ class UserController extends Controller
 
         session()->invalidate();
         session()->regenerateToken();
-
-
 
 
         return redirect()->route('LoginPage');
