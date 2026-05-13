@@ -1,31 +1,52 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::create('plans', function (Blueprint $table) {
+
             $table->id();
 
-            $table->string('name'); // Basic, Pro, Premium
+            $table->string('name');
+
+            // Stripe IDs
+            $table->string('stripe_product_id')->unique();
 
             $table->string('stripe_price_id')->unique();
 
-            $table->integer('amount'); // in paise (49900 = ₹499)
+            // Pricing
+            $table->decimal('price', 10, 2);
 
-            $table->string('currency')->default('inr');
+            // monthly / yearly
+            $table->enum('billing_cycle', [
+                'monthly',
+                'yearly'
+            ]);
 
-            $table->string('interval')->default('month');
-            // month, year
+            // Optional Trial
+            $table->integer('trial_days')->default(0);
 
+            // Features JSON
+            $table->json('features')->nullable();
+
+            // Active or not
             $table->boolean('is_active')->default(true);
 
             $table->timestamps();
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('plans');

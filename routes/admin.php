@@ -14,6 +14,7 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserMangeController;
 use App\Http\Middleware\checkLogin;
+use App\Http\Middleware\IsAdmin;
 use App\Http\Middleware\NotAccessLoginIfAuthorize;
 use Illuminate\Support\Facades\Route;
 
@@ -54,15 +55,13 @@ Route::get('all-Product', [ProductController::class, 'allProduct'])->name('view.
 Route::get('/seller/product/create', [ProductController::class, 'create'])->name('product.create');
 Route::post('/seller/product/store', [ProductController::class, 'store'])->name('seller.product.store');
 
+   Route::get('admin-page', function () {
+        return view('admin.layout.index');
+    })->can('isAdmin')->name('dashboard.page');
 
 
 
 Route::middleware([checkLogin::class])->group(function () {
-
-    Route::get('admin-page', function () {
-        return view('admin.layout.index');
-    })->name('dashboard.page');
-
 
     Route::get('logout', [UserController::class, 'logout'])->name('logout.now');
 

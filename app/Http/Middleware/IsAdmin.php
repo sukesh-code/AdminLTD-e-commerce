@@ -1,13 +1,14 @@
 <?php
 
 namespace App\Http\Middleware;
-use Illuminate\Support\Facades\Auth;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 
-class checkLogin
+class IsAdmin
 {
     /**
      * Handle an incoming request.
@@ -16,12 +17,9 @@ class checkLogin
      */
     public function handle(Request $request, Closure $next): Response
     {
-         if(!Auth::user()  ) {
+         if(!Gate::allows('isAdmin') || !Auth::user()){
             abort(401, 'Unauthorized user');
          }
-
-         
-
         return $next($request);
     }
 }

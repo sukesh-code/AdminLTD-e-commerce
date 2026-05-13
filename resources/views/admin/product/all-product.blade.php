@@ -2,7 +2,7 @@
 
 <?php
 use App\Models\Product;
-$products = Product::with(['categories_rel', 'variants.inventory'])->get();
+$products = Product::with(['categories', 'variants.inventory'])->get();
 
 ?>
 
@@ -73,7 +73,7 @@ $products = Product::with(['categories_rel', 'variants.inventory'])->get();
                             <th>ID</th>
                             <th>PRODUCT</th>
                             <th>CATEGORY</th>
-                        
+
                             <th>SHORT DESC</th>
                             <th>DESC</th>
                             <th>CREATED</th>
